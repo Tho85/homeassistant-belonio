@@ -31,6 +31,7 @@ class Belonio:
         self._timeout = 10
         self.user_info = None
         self.giftcards = None
+        self.most_recent_giftcard = None
 
     async def fetch_user_info(self):
         """ Get user info. """
@@ -60,7 +61,25 @@ class Belonio:
         if json_data is None:
             return
 
-        self.giftcards = json_data
+        self.giftcards = json_data["content"]
+
+    async def fetch_most_recent_giftcard(self):
+        """ Get most recent giftcard """
+        if self.giftcards is None:
+            await self.fetch_giftcards()
+
+        most_recent = sorted(self.giftcards, key=lambda x:-x["valuta"])[0]["giftcardId"]
+
+        response = await self._request(f"{API_HOST}/giftcards/{most_recent}")
+
+        if response is None:
+            return
+
+        json_data = await response.json()
+        if json_data is None:
+            return
+
+        self.most_recent_giftcard = json_data
 
     def current_employment(self):
         if self.user_info is None:
@@ -72,6 +91,12 @@ class Belonio:
 
         return None
 
+    def current_employer(self):
+        if self.current_employment() is None:
+            return None
+
+        self.current_employment()["employer"]["name"]
+
     def current_employment_id(self):
         if self.current_employment is None:
             return None
@@ -79,15 +104,21 @@ class Belonio:
         return self.current_employment()["publicId"]
 
 
+    async def login(self):
+        """ Try to login """
+        self._access_token = await get_belonio_token(
+            self.websession, self._username, self._password
+        )
+
+        return self._access_token != None
+
     async def _request(self, url, body=None, retry=3):
         self._prev_request = datetime.datetime.utcnow()
         _LOGGER.debug("Request %s %s %s", url, retry, body)
 
         if self._access_token is None:
             _LOGGER.debug("Fetching token")
-            self._access_token = await get_belonio_token(
-                self.websession, self._username, self._password
-            )
+            await self.login()
 
             if self._access_token is None:
                 return None
