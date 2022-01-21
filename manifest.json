@@ -3,7 +3,7 @@
   "domain": "belonio",
   "name": "Belonio",
   "config_flow": true,
-  "documentation": "https://www.home-assistant.io/integrations/belonio",
+  "documentation": "https://github.com/Tho85/homeassistant-belonio",
   "requirements": [],
   "ssdp": [],
   "zeroconf": [],
