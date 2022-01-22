@@ -19,7 +19,13 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 
-from .const import ATTR_BARCODE_URL, ATTR_GIFTCARD, ATTR_GIFTCARDS, DOMAIN
+from .const import (
+    ATTR_BARCODE_URL,
+    ATTR_GIFTCARD,
+    ATTR_GIFTCARDS,
+    ATTR_ORIGINAL_AMOUNT,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -105,7 +111,7 @@ class BelonioMostRecentSensor(BelonioSensor):
     @property
     def native_value(self):
         """Return the state of the sensor."""
-        return float(self.coordinator.data["recent"]["amount"]["amount"])
+        return float(self.coordinator.data["recent"]["remainingAmount"]["amount"])
 
     @property
     def native_unit_of_measurement(self):
@@ -128,6 +134,7 @@ class BelonioMostRecentSensor(BelonioSensor):
         return {
             ATTR_GIFTCARD: self._recent_giftcard,
             ATTR_BARCODE_URL: self._barcode_url,
+            ATTR_ORIGINAL_AMOUNT: float(self.coordinator.data["recent"]["amount"]["amount"]),
         }
 
     @property
