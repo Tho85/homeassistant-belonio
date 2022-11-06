@@ -40,7 +40,7 @@ class Belonio:
         if response is None:
             return
 
-        json_data = await response.json(content_type = "text/plain")
+        json_data = await response.json(content_type = "application/json")
         if json_data is None:
             return
 
